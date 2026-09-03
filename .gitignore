@@ -1,0 +1,4 @@
+# Local Firebase config and env files — real values live only on your
+# machine and in GitHub Actions secrets, never in git history.
+.env
+firebase-config.js

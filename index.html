@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CEAS Outreach Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f3ee;
+    --surface:#ffffff;
+    --surface-2:#eee8db;
+    --border:#ddd4c3;
+    --border-soft:#e8e1d3;
+    --text:#2b2820;
+    --text-muted:#726b5c;
+    --text-faint:#a39a86;
+    --accent:#5f7d5f;
+    --accent-ink:#3c5540;
+    --accent-soft:#dde6da;
+    --rose:#a8695a;
+    --rose-soft:#ecdcd6;
+    --focus:#4d6a8a;
+    --focus-soft:#dde5ec;
+    --shadow: 0 1px 2px rgba(43,40,32,.04), 0 8px 24px -16px rgba(43,40,32,.18);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#1c1a16;
+      --surface:#242119;
+      --surface-2:#2c2820;
+      --border:#3c3628;
+      --border-soft:#332e24;
+      --text:#eee7d8;
+      --text-muted:#b0a68f;
+      --text-faint:#7d7362;
+      --accent:#87a687;
+      --accent-ink:#c3d8bf;
+      --accent-soft:#33402f;
+      --rose:#c78b7a;
+      --rose-soft:#3f2f2a;
+      --focus:#8fadc9;
+      --focus-soft:#2b333c;
+      --shadow: 0 1px 2px rgba(0,0,0,.2), 0 8px 24px -16px rgba(0,0,0,.5);
+    }
+  }
+
+  *{box-sizing:border-box;}
+  html,body{ height:auto; }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Source Sans 3', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{ background:var(--accent-soft); }
+  a{ color:var(--focus); }
+  :focus-visible{ outline:2px solid var(--focus); outline-offset:2px; border-radius:4px; }
+
+  .wrap{ max-width:920px; margin:0 auto; padding:0 20px 96px; }
+
+  /* ---------- Header ---------- */
+  header.top{ padding:40px 0 20px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', ui-monospace, monospace;
+    font-size:12px; letter-spacing:.09em; text-transform:uppercase;
+    color:var(--text-muted); margin:0 0 10px;
+  }
+  h1{
+    font-family:'Fraunces', Georgia, serif;
+    font-weight:500; font-size:clamp(28px,4vw,38px);
+    letter-spacing:-.01em; margin:0 0 10px; text-wrap:balance;
+  }
+  .lede{ font-size:15.5px; line-height:1.6; color:var(--text-muted); max-width:62ch; margin:0; }
+
+  /* ---------- Stats ---------- */
+  .stats{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin:26px 0 4px; }
+  .stat{ background:var(--surface); border:1px solid var(--border-soft); border-radius:10px; padding:14px 16px; }
+  .stat .n{ font-family:'IBM Plex Mono', monospace; font-variant-numeric:tabular-nums; font-size:24px; font-weight:500; line-height:1; }
+  .stat .n.accent{ color:var(--accent-ink); }
+  .stat .l{ margin-top:6px; font-size:12px; color:var(--text-muted); letter-spacing:.02em; }
+
+  /* ---------- Controls ---------- */
+  .controls{
+    position:sticky; top:0; z-index:20; background:var(--bg);
+    padding:16px 0 12px; margin-top:22px; border-bottom:1px solid var(--border-soft);
+    display:flex; flex-wrap:wrap; gap:10px; align-items:center;
+  }
+  .search{ flex:1 1 220px; display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:9px; padding:9px 12px; }
+  .search svg{ flex:none; opacity:.55; }
+  .search input{ border:none; outline:none; background:transparent; color:var(--text); font-family:inherit; font-size:14px; width:100%; }
+  .search input::placeholder{ color:var(--text-faint); }
+
+  .seg{ display:flex; border:1px solid var(--border); border-radius:9px; overflow:hidden; background:var(--surface); }
+  .seg button{ font-family:inherit; font-size:13px; color:var(--text-muted); background:transparent; border:none; padding:9px 13px; cursor:pointer; border-right:1px solid var(--border); }
+  .seg button:last-child{ border-right:none; }
+  .seg button.active{ background:var(--accent-soft); color:var(--accent-ink); font-weight:600; }
+  .seg button:hover:not(.active){ background:var(--surface-2); }
+
+  label.emeritus{ display:flex; align-items:center; gap:7px; font-size:13px; color:var(--text-muted); white-space:nowrap; cursor:pointer; }
+  label.emeritus input{ accent-color:var(--accent); width:14px; height:14px; }
+
+  nav.jump{ display:flex; flex-wrap:wrap; gap:6px; padding:12px 0 0; }
+  nav.jump a{ font-size:12.5px; text-decoration:none; color:var(--text-muted); background:var(--surface); border:1px solid var(--border-soft); padding:5px 10px; border-radius:100px; }
+  nav.jump a:hover{ border-color:var(--border); color:var(--text); }
+  nav.jump a .c{ font-family:'IBM Plex Mono',monospace; color:var(--text-faint); margin-left:4px; }
+
+  /* ---------- Department section ---------- */
+  section.dept{ margin-top:40px; scroll-margin-top:190px; }
+  .dept-head{ margin-bottom:14px; }
+  .dept-head h2{ font-family:'Fraunces', Georgia, serif; font-weight:500; font-size:21px; margin:0 0 6px; display:flex; align-items:baseline; gap:10px; }
+  .dept-head h2 .count{ font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--text-faint); font-weight:400; }
+  .dept-head .blurb{ font-size:13.5px; color:var(--text-muted); margin:0 0 10px; max-width:64ch; }
+  .areas{ display:flex; flex-wrap:wrap; gap:6px; }
+  .areas span{ font-size:11.5px; letter-spacing:.02em; color:var(--focus); background:var(--focus-soft); border-radius:100px; padding:3px 9px; }
+
+  .group-label{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); margin:22px 0 8px; padding-top:2px; }
+  .group-label:first-of-type{ margin-top:16px; }
+
+  /* ---------- Faculty row ---------- */
+  ul.roster{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  li.person{ background:var(--surface); border:1px solid var(--border-soft); border-radius:11px; padding:13px 15px; box-shadow:var(--shadow); transition:border-color .15s ease; }
+  li.person:hover{ border-color:var(--border); }
+  li.person.is-emeritus{ opacity:.68; }
+  .p-top{ display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:10px 16px; }
+  .p-id{ min-width:220px; flex:1 1 260px; }
+  .p-name{ font-size:15px; font-weight:600; line-height:1.35; }
+  .p-name .tag-em{ font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--text-faint); border:1px solid var(--border); border-radius:100px; padding:1px 6px; margin-left:7px; vertical-align:1px; }
+  .p-title{ font-size:12.5px; color:var(--text-muted); margin-top:2px; }
+  .p-email{ font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--focus); text-decoration:none; display:inline-flex; align-items:center; gap:6px; margin-top:6px; }
+  .p-email:hover{ text-decoration:underline; }
+  .copy-btn{ border:none; background:none; cursor:pointer; color:var(--text-faint); padding:2px; display:inline-flex; border-radius:5px; }
+  .copy-btn:hover{ color:var(--text-muted); background:var(--surface-2); }
+  .copy-btn.copied{ color:var(--accent-ink); }
+
+  .toggles{ display:flex; gap:18px; flex-wrap:wrap; }
+  .toggle-group{ display:flex; flex-direction:column; gap:5px; align-items:flex-start; }
+  .toggle-group .tg-label{ font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--text-faint); }
+  .pill-pair{ display:flex; border:1px solid var(--border); border-radius:100px; overflow:hidden; }
+  .pill-pair button{ font-family:inherit; font-size:12.5px; font-weight:600; padding:6px 13px; border:none; background:var(--surface); color:var(--text-muted); cursor:pointer; }
+  .pill-pair button + button{ border-left:1px solid var(--border); }
+  .pill-pair button.yes.active{ background:var(--accent-soft); color:var(--accent-ink); }
+  .pill-pair button.no.active{ background:var(--rose-soft); color:var(--rose); }
+
+  .p-notes{ margin-top:10px; }
+  .p-notes textarea{ width:100%; resize:vertical; min-height:34px; font-family:inherit; font-size:12.5px; color:var(--text); background:var(--surface-2); border:1px solid var(--border-soft); border-radius:7px; padding:8px 10px; line-height:1.45; }
+  .p-notes textarea::placeholder{ color:var(--text-faint); }
+  .p-notes textarea:focus{ background:var(--surface); }
+
+  .empty-note{ font-size:13px; color:var(--text-faint); padding:16px 0; }
+
+  .sync{ display:inline-flex; align-items:center; gap:7px; font-size:12px; color:var(--text-muted); margin-top:14px; }
+  .sync::before{ content:''; width:7px; height:7px; border-radius:50%; background:var(--text-faint); flex:none; }
+  .sync-connecting::before{ background:var(--focus); animation:pulse 1.4s ease-in-out infinite; }
+  .sync-synced::before{ background:var(--accent); }
+  .sync-error::before{ background:var(--rose); }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity:.35; } }
+  @media (prefers-reduced-motion: reduce){ .sync-connecting::before{ animation:none; } }
+
+  footer.foot{ margin-top:56px; padding-top:18px; border-top:1px solid var(--border-soft); font-size:12px; color:var(--text-faint); line-height:1.6; }
+
+  @media (max-width:520px){
+    .p-top{ flex-direction:column; }
+    .toggles{ width:100%; justify-content:space-between; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <p class="eyebrow">University of Cincinnati &middot; College of Engineering &amp; Applied Science</p>
+    <h1>Lab outreach, one quiet list at a time.</h1>
+    <p class="lede">Every CEAS faculty member across six departments, in one place — who you've emailed, who's hiring, and what their lab is working on.</p>
+    <p class="sync" id="sync-status">Starting up…</p>
+  </header>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="controls">
+    <div class="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Search name, title, or research area&hellip;" />
+    </div>
+    <div class="seg" id="filter-reached">
+      <button data-v="all" class="active">All</button>
+      <button data-v="pending">Not contacted</button>
+      <button data-v="yes">Contacted</button>
+    </div>
+    <div class="seg" id="filter-hiring">
+      <button data-v="all" class="active">Any hiring status</button>
+      <button data-v="yes">Hiring: Yes</button>
+      <button data-v="no">Hiring: No</button>
+    </div>
+    <label class="emeritus"><input type="checkbox" id="show-emeritus" /> Include emeriti</label>
+    <nav class="jump" id="jump"></nav>
+  </div>
+
+  <main id="depts"></main>
+
+  <footer class="foot">
+    Faculty names, titles, emails and research notes were compiled from each department's public CEAS directory page in September 2026 — double‑check a listing against <a href="https://www.ceas.uc.edu" target="_blank" rel="noopener">ceas.uc.edu</a> before relying on it, as appointments and contact details change. "Reached out," "Is hiring," and the notes field sync to a free Firebase Firestore database once you connect one (see <code>README.md</code>) — until then they're saved to this browser only.
+  </footer>
+</div>
+
+<!-- Firebase (free "Spark" plan) — client SDK, loaded before your config and the app -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+
+<script>
+(function(){
+  "use strict";
+
+  var DEPTS = [
+    { key:'cs', name:'Computer Science', blurb:'AI, machine learning, data science and bioinformatics, with a group of Medicine-affiliated secondary faculty.', areas:['Machine learning','NLP — CincyNLP','Spatio-temporal data science','Database systems','Bioinformatics'] },
+    { key:'ece', name:'Electrical & Computer Engineering', blurb:'Twenty-plus labs and centers spanning semiconductors, sensing, energy and cyber systems.', areas:['BioMEMS & microsystems','Nanoelectronics','Cybersecurity — CHEST, Ohio Cyber Range','Wireless & networking','Controls & robotics'] },
+    { key:'bme', name:'Biomedical Engineering', blurb:'Imaging, biosensors, regenerative engineering and clinical devices, plus Medicine-affiliated secondary faculty.', areas:['Medical imaging','Biosensors','Tissue & wound regeneration','Microfluidics / lab-on-chip','Drug delivery'] },
+    { key:'aero', name:'Aerospace Engineering & Engineering Mechanics', blurb:'Organized into three formal research groups, listed below as they appear on the department site.', areas:['Dynamics, controls & intelligent systems','Fluids, propulsion & heat transfer','Solids & structural mechanics'] },
+    { key:'cae', name:'Civil, Architectural Engineering & Construction Management', blurb:'Infrastructure design and infrastructure systems — bridges, water systems, buildings and the processes that build them.', areas:['Structures','Transportation','Geotechnical','Construction management','Architectural engineering'] },
+    { key:'chee', name:'Chemical & Environmental Engineering', blurb:'Reactions, separations and materials on one side; sustainability-driven environmental engineering on the other.', areas:['Membranes & materials','Sustainable / renewable energy','Water & wastewater treatment','Air quality','Hydrology'] }
+  ];
+
+  function P(dept, group, name, title, email, research, emeritus){
+    return { dept:dept, group:group||'', name:name, title:title, email:email, research:research||'', emeritus:!!emeritus };
+  }
+
+  var DATA = [
+    // ---------------- Computer Science ----------------
+    P('cs','Department Head','Justin Zhan','Fred A. & Juliet Esselborn Geier Chair Professor, Department Head','zhanjt@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Giovani Abuaitah','Associate Professor – Educator','abuaitgi@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Gowtham Atluri','Associate Professor','atlurigm@ucmail.uc.edu','Spatio-temporal data science'),
+    P('cs','Primary Faculty','Jillian Aurisano','Associate Professor – Educator','aurisajm@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Jun Bai','Assistant Professor','baiju@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Raj K. Bhatnagar','Professor','bhatnark@ucmail.uc.edu','Machine intelligence'),
+    P('cs','Primary Faculty','Hrishikesh Vinayak Bhide','Assistant Professor – Educator','bhidehk@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Swastik Brahma','Associate Professor','brahmask@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Yizong Cheng','Associate Professor','chengy@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Chaowen Guan','Assistant Professor','guance@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','William Howard Hawkins III','Assistant Professor – Educator','hawkinwh@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Tianyu Jiang','Assistant Professor','jiangt2@ucmail.uc.edu','Natural language processing — CincyNLP lab'),
+    P('cs','Primary Faculty','Seokki Lee','Associate Professor – Educator','lee5sk@ucmail.uc.edu','Database systems'),
+    P('cs','Primary Faculty','Anca L. Ralescu','Professor','ralescal@ucmail.uc.edu','Machine learning & computational intelligence'),
+    P('cs','Primary Faculty','Vikram Ravindra','Assistant Professor','ravindvm@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Jianxin Sun','Assistant Professor','sunjx@ucmail.uc.edu',''),
+    P('cs','Primary Faculty','Yu Zhao','Assistant Professor','zhao3y3@ucmail.uc.edu',''),
+    P('cs','Secondary / Medicine-affiliated','Bruce J. Aronow','Professor – Affiliate','aronowbj@ucmail.uc.edu',''),
+    P('cs','Secondary / Medicine-affiliated','Ravindra Arya','Professor of Clinical – Affiliate','aryara@ucmail.uc.edu',''),
+    P('cs','Secondary / Medicine-affiliated','Lili He','Associate Professor – Affiliate','hel3@ucmail.uc.edu',''),
+    P('cs','Secondary / Medicine-affiliated','Anil Jegga','Research Professor – Affiliate','jeggaa@ucmail.uc.edu',''),
+    P('cs','Secondary / Medicine-affiliated','Mario Medvedovic','Director, Center for Biostatistics & Bioinformatics Services','medvedm@ucmail.uc.edu',''),
+    P('cs','Secondary / Medicine-affiliated','Jarek Meller','Professor','mellerj@ucmail.uc.edu','Email captured from a truncated listing — confirm before relying on it.'),
+
+    // ---------------- Electrical & Computer Engineering ----------------
+    P('ece','Department Head','Marc M. Cahay','Professor, Department Head','cahaymm@ucmail.uc.edu',''),
+    P('ece','Faculty','Chong H. Ahn','Distinguished University Research Professor','ahnch@ucmail.uc.edu','BioMEMS'),
+    P('ece','Faculty','Je Hyeong Bahk','Associate Professor','bahkjg@ucmail.uc.edu',''),
+    P('ece','Faculty','Fred Yauh-Huei Chiou','Associate Professor – Educator','chioufd@ucmail.uc.edu',''),
+    P('ece','Faculty','Rui Dai','Associate Professor','dairi@ucmail.uc.edu','Micro & Nano Control Lab'),
+    P('ece','Faculty','Leyla Esfandiari','Associate Professor','esfandla@ucmail.uc.edu','Microfluidics / lab-on-chip — joint appointment with Biomedical Engineering'),
+    P('ece','Faculty','Zachariah Elijiah Fuchs','Associate Professor','fuchsze@ucmail.uc.edu',''),
+    P('ece','Faculty','John Christopher Gallagher','Professor','gallagj9@ucmail.uc.edu',''),
+    P('ece','Faculty','Nick K. Haddad','Associate Professor – Educator','haddadnl@ucmail.uc.edu',''),
+    P('ece','Faculty','Daewoo Han','Assistant Professor','hand@ucmail.uc.edu',''),
+    P('ece','Faculty','Jason C. Heikenfeld','Program Director, Academic','heikenjc@ucmail.uc.edu','Molecular biosensors — joint appointment with Biomedical Engineering'),
+    P('ece','Faculty','Arthur J. Helmicki','Associate Dean','helmicaj@ucmail.uc.edu',''),
+    P('ece','Faculty','Victor Hunt','Associate Professor – Research','huntvj@ucmail.uc.edu',''),
+    P('ece','Faculty','Rashmi Jha','Professor','jhari@ucmail.uc.edu',''),
+    P('ece','Faculty','Yeongin Kim','Assistant Professor','kim4yg@ucmail.uc.edu',''),
+    P('ece','Faculty','Tao Li','Associate Professor','litao@ucmail.uc.edu','Advanced Imaging & Measurement Lab'),
+    P('ece','Faculty','Tamara Lorenz','Professor','lorenztr@ucmail.uc.edu','Joint appointment: Psychology, Mechanical Engineering, Electrical Engineering'),
+    P('ece','Faculty','Ali A. Minai','Professor','minaiaa@ucmail.uc.edu',''),
+    P('ece','Faculty','Ankit Mittal','Assistant Professor','mittala5@ucmail.uc.edu',''),
+    P('ece','Faculty','Nitin Nitin','Associate Professor – Educator','nitinfu@ucmail.uc.edu',''),
+    P('ece','Faculty','Mehdi Norouzi','Associate Professor – Educator','norouzmi@ucmail.uc.edu',''),
+    P('ece','Faculty','Vesna Dominika Novak','Professor','novakdn@ucmail.uc.edu',''),
+    P('ece','Faculty','Massoud Rabiee','Professor','rabieem@ucmail.uc.edu',''),
+    P('ece','Faculty','Andrew Steckl','Distinguished University Research Professor; Gieringer Professor','steckla@ucmail.uc.edu','Nanoelectronics Lab'),
+    P('ece','Faculty','Ashraf Sulieman Samarah','Associate Professor – Educator','samaraaf@ucmail.uc.edu',''),
+    P('ece','Faculty','Moncef Tayahi','Associate Professor – Educator','tayahimb@ucmail.uc.edu',''),
+    P('ece','Faculty','Dieter Frans S. Vanderelst','Professor','vanderdt@ucmail.uc.edu','Joint appointment: Biology, Mechanical Engineering, Electrical Engineering'),
+
+    // ---------------- Biomedical Engineering ----------------
+    P('bme','Department Head','Tom Michael Talavage','Professor, Department Head','talavatm@ucmail.uc.edu','Medical imaging & bioinformatics'),
+    P('bme','Primary Faculty','Rupak K. Banerjee','Professor','banerjr@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Riccardo Barrile','Associate Professor','barrilro@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Angela Zachman Boronyak','Assistant Dean','zachmaaa@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Hans Charles Breiter','Professor','breitehs@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Aaron J. Burdette','Associate Professor – Practice','burdetaj@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Paul D. Gordon','Associate Professor – Educator','gordonpd@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Victoria Lynn Heasley','Assistant Professor of Clinical','heasleva@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','LaShan Hendrix','Associate Professor','hendric5@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Orlando Sanguinette Hoilett','Assistant Professor','hoiletos@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Christy K. Holland','Hanna Endowed Chair of Cardiology; Director, Image-Guided Ultrasound Therapeutics Labs','hollanck@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Olga Liaudanskaya','Assistant Professor','liaudava@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','John Robert Martin','Assistant Professor','marti7j3@ucmail.uc.edu','3D-printed, biodegradable drug-releasing materials'),
+    P('bme','Primary Faculty','Alex Alejandro Mejia','Professor','mejiaja@ucmail.uc.edu','Engineering education & diversity'),
+    P('bme','Primary Faculty','Daria Narmoneva','Associate Professor','narmond@ucmail.uc.edu','Diabetic wound healing / regenerative hydrogels'),
+    P('bme','Primary Faculty','Eric Allen Nauman','Dane A. & Mary Louise Miller Professor; Undergraduate Program Director','naumanea@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Stacey Colleen Schutte','Assistant Professor','schuttsy@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Jason Shearn','Associate Professor; Graduate Recruitment Director','shearnj@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Mindy Grace Simon','Associate Professor – Educator','simonm9@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Jing Tang','Associate Professor','tangj6@ucmail.uc.edu',''),
+    P('bme','Primary Faculty','Guannan Zhang','Assistant Professor','zhang2gn@ucmail.uc.edu',''),
+    P('bme','Secondary / Medicine-affiliated','Michael T. Archdeacon','Senior Associate Dean for Clinical Affairs; Professor','archdemt@ucmail.uc.edu',''),
+    P('bme','Secondary / Medicine-affiliated','Ishita Basu','Assistant Professor – Research','basuia@ucmail.uc.edu',''),
+    P('bme','Secondary / Medicine-affiliated','Alister Bates','Assistant Professor – Affiliate','batesa3@ucmail.uc.edu',''),
+
+    // ---------------- Aerospace Engineering & Engineering Mechanics ----------------
+    P('aero','Department Head','Prashant Khare','Bradley Jones Chair, Department Head','kharept@ucmail.uc.edu',''),
+    P('aero','Dynamics, Controls & Intelligent Systems','Shambo Bhattacharjee','Assistant Professor','bhattso@ucmail.uc.edu',''),
+    P('aero','Dynamics, Controls & Intelligent Systems','Kelly Cohen','Brian H. Rowe Endowed Chair in Aerospace Engineering','cohenky@ucmail.uc.edu',''),
+    P('aero','Dynamics, Controls & Intelligent Systems','Sameh A. Eisa','Associate Professor','eisash@ucmail.uc.edu',''),
+    P('aero','Dynamics, Controls & Intelligent Systems','Donghoon Kim','Associate Professor','kim3dn@ucmail.uc.edu',''),
+    P('aero','Dynamics, Controls & Intelligent Systems','Ou Ma','Alan B. Shepard Chair Professor','maou@ucmail.uc.edu',''),
+    P('aero','Dynamics, Controls & Intelligent Systems','Abhinav Sinha','Assistant Professor','sinhaab@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Shaaban A. Abdallah','Professor','abdallsa@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Ryan James Clark','Assistant Professor – Educator','clarkrj@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Daniel R. Cuppoletti','Associate Professor','cuppoldr@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Peter J. Disimile','Associate Professor','disimipj@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Ephraim J. Gutmark','Distinguished Professor; Ohio Regents Eminent Scholar','gutmarej@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Jongguen Lee','Professor','lee3jn@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Achyut Panchal','Assistant Professor','panchaau@ucmail.uc.edu',''),
+    P('aero','Fluids, Propulsion & Heat Transfer','Dhuree Seth','Assistant Professor – Educator','sethde@ucmail.uc.edu',''),
+    P('aero','Solids & Structural Mechanics','Joseph James Corcoran','Associate Professor','corcorjo@ucmail.uc.edu',''),
+    P('aero','Solids & Structural Mechanics','Gui-Rong Liu','Professor','liugr@ucmail.uc.edu',''),
+    P('aero','Solids & Structural Mechanics','Francesco Simonetti','Professor','simonefo@ucmail.uc.edu',''),
+    P('aero','Professors Emeriti','Lawrence T. Bennett','Professor Emeritus','bennetlt@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','George (Tom) T. Black','Associate Professor of Practice Emeritus','blackgr@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','Awatef Hamed','Professor Emeritus','hameda@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','San-Mou Jeng','Professor Emeritus','jengsu@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','Prem K. Khosla','Professor Emeritus','khoslapk@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','Peter B. Nagy','Professor Emeritus','nagyp@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','Paul D. Orkwis','Professor Emeritus','orkwispd@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','Gary L. Slater','Professor Emeritus','slatergl@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','Mark G. Turner','Professor Emeritus','turnermr@ucmail.uc.edu','',true),
+    P('aero','Professors Emeriti','Bruce K. Walker','Professor Emeritus','walkerbk@ucmail.uc.edu','',true),
+
+    // ---------------- Civil, Architectural Engineering & Construction Management ----------------
+    P('cae','Department Head','Mohamed M. Ahmed','Professor, Department Head','ahmed2mh@ucmail.uc.edu',''),
+    P('cae','Architectural Engineering','Arpan Guha','Assistant Professor','guhaan@ucmail.uc.edu',''),
+    P('cae','Architectural Engineering','Eric T. Inglert','Professor – Practice','inglere@ucmail.uc.edu',''),
+    P('cae','Architectural Engineering','Nabil Nassif','Professor','nassifnl@ucmail.uc.edu',''),
+    P('cae','Architectural Engineering','Amanda Laurel Webb','Associate Professor','webb2al@ucmail.uc.edu',''),
+    P('cae','Architectural Engineering','Tianren Wu','Assistant Professor','wutr@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Rachel Chicchi Cross','Associate Professor','crossrl@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Hazem M. Elzarka','Professor','elzarkhm@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Richard Li','Associate Professor','lizx@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Sara Khoshnevisan','Assistant Professor','khoshnsa@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Munir D. Nazzal','Professor','nazzalmd@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Gian Andrea A. Rassati','Associate Professor','rassatga@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Matthew David Sleep','Associate Professor – Educator','sleepmw@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','James A. Swanson','Associate Professor','swansojs@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Lei Wang','Associate Professor','wang4li@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Heng Wei','Professor','weihg@ucmail.uc.edu',''),
+    P('cae','Civil Engineering','Kuanshi Zhong','Assistant Professor','zhongki@ucmail.uc.edu',''),
+    P('cae','Construction Management','Kwame Amoah','Assistant Professor – Educator','amoahkb@ucmail.uc.edu',''),
+    P('cae','Construction Management','Abhijeet Deshpande','Program Director','deshpaa@ucmail.uc.edu',''),
+    P('cae','Construction Management','George O. Okere','Professor – Educator; Heavy Civil Endowed Chair','okerege@ucmail.uc.edu',''),
+    P('cae','Construction Management','Ebenezer Ekow Tackey-Otoo','Assistant Professor – Educator','tackeyee@ucmail.uc.edu',''),
+    P('cae','Professors Emeriti','Mark T. Bowers','Professor Emeritus','bowersmt@ucmail.uc.edu','',true),
+    P('cae','Professors Emeriti','Steven G. Buchberger','Professor Emeritus','buchbesg@ucmail.uc.edu','',true),
+    P('cae','Professors Emeriti','Daniel James Durbin','Professor Emeritus','durbindj@ucmail.uc.edu','',true),
+    P('cae','Professors Emeriti','Anton C. Harfmann','Professor Emeritus','harfmaac@ucmail.uc.edu','',true),
+    P('cae','Professors Emeriti','Bahram M. Shahrooz','Professor Emeritus','shahrobm@ucmail.uc.edu','',true),
+
+    // ---------------- Chemical & Environmental Engineering ----------------
+    P('chee','Department Head','Junhang Dong','George Rieveschl Eminent Scholar in Membrane Science & Technology, Department Head','dongj@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Anastasios Angelopoulos','Professor; Associate Dean for Undergraduate Affairs','angeloas@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Carlos C. Co','Associate Professor','cocc@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Vadim Guliants','Chair, George Rieveschl Advanced Membranes & Materials Group','gulianv@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Greg Harris','James M. Armstrong Associate Professor','harrigy@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Joo-Youp Lee','Ray & Connie Brooks Professor in Sustainability & Renewable Energy','leejo@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Ben A. McCool','Associate Professor – Educator','mccoolb@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Jonathan David Nickels','Associate Professor','nickeljo@ucmail.uc.edu','Cell-membrane biophysics for biofuels; work cited under BME research'),
+    P('chee','Chemical Engineering','Yoonjee Park','Professor','parkye@ucmail.uc.edu','Long-term, implantable drug delivery'),
+    P('chee','Chemical Engineering','Jonathan T. Pham','Associate Professor','phamj5@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Aashish Priye','Associate Professor','priyeah@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Vesselin N. Shanov','Professor','shanovvn@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Stephen W. Thiel','Professor – Educator','thiels@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Thomas Tran','Associate Professor – Educator','tran5td@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Maobing Tu','Professor','tumg@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','John Walter Weidner','Dean','weidnejw@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Jingjie Wu','Professor','wu2jj@ucmail.uc.edu',''),
+    P('chee','Chemical Engineering','Ben Merkel Yavitt','Assistant Professor','yavittbn@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','Simone Balachandran','Associate Professor – Educator','balachsm@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','Soryong Chae','Professor','chaesg@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','Dongmei Feng','Associate Professor','fengdi@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','Mingming Lu','Professor','lumg@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','Xi-Zhi Niu','Assistant Professor','niuxh@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','Patrick Alexander Ray','Associate Professor','raypk@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','Reza Soltanian','Professor of Hydrogeology','soltanma@ucmail.uc.edu',''),
+    P('chee','Environmental Engineering','David W. Wendell','Associate Professor','wendeldw@ucmail.uc.edu','')
+  ];
+
+  var STORE_KEY = 'ceasOutreachTracker.v1';
+  var state = {};
+  try{ state = JSON.parse(localStorage.getItem(STORE_KEY) || '{}'); }catch(e){ state = {}; }
+
+  var COLLECTION = 'responses';
+  var fsDb = null;          // set once Firestore initializes successfully
+  var notesTimers = {};
+
+  function localSave(){
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  function setSyncStatus(mode, detail){
+    var el = document.getElementById('sync-status');
+    if(!el) return;
+    el.className = 'sync sync-' + mode;
+    var text = {
+      local: 'Local-only mode — see README.md to connect a free Firebase database and sync across devices.',
+      connecting: 'Connecting to your synced list…',
+      synced: 'Synced — saved to the cloud, available on any device.',
+      error: 'Sync hiccup — your changes are saved on this device and will retry.'
+    }[mode] || '';
+    el.textContent = text + (detail ? ' ' + detail : '');
+  }
+
+  // Writes the WHOLE record for one person to Firestore. Debounced per
+  // field by the callers below so a burst of clicks or keystrokes doesn't
+  // fire a network write per keystroke.
+  function writeRemote(email){
+    if(!fsDb) return;
+    var rec = getRec(email);
+    fsDb.collection(COLLECTION).doc(email).set({
+      reached: rec.reached,
+      hiring: rec.hiring,
+      notes: rec.notes,
+      updatedAt: new Date().toISOString()
+    }, { merge: true }).catch(function(err){
+      console.error('CEAS tracker: Firestore write failed', err);
+      setSyncStatus('error');
+    });
+  }
+
+  function scheduleNotesWrite(email){
+    clearTimeout(notesTimers[email]);
+    notesTimers[email] = setTimeout(function(){ writeRemote(email); }, 600);
+  }
+
+  function initDb(){
+    var cfg = window.FIREBASE_CONFIG;
+    var configured = cfg && cfg.apiKey && cfg.apiKey !== 'YOUR_API_KEY' && typeof firebase !== 'undefined';
+    if(!configured){ setSyncStatus('local'); return; }
+    try{
+      firebase.initializeApp(cfg);
+      fsDb = firebase.firestore();
+    }catch(e){
+      console.error('CEAS tracker: Firebase init failed', e);
+      setSyncStatus('error');
+      return;
+    }
+    setSyncStatus('connecting');
+    fsDb.collection(COLLECTION).onSnapshot(function(snap){
+      snap.forEach(function(doc){
+        var data = doc.data();
+        if(!data) return;
+        state[doc.id] = {
+          reached: data.reached || null,
+          hiring: data.hiring || null,
+          notes: (data.notes !== undefined && data.notes !== null) ? data.notes : null
+        };
+      });
+      localSave();
+      setSyncStatus('synced');
+      render();
+    }, function(err){
+      console.error('CEAS tracker: Firestore snapshot error', err);
+      setSyncStatus('error');
+    });
+  }
+
+  function getRec(email){
+    if(!state[email]) state[email] = { reached:null, hiring:null, notes:null };
+    return state[email];
+  }
+
+  var filters = { q:'', reached:'all', hiring:'all', emeritus:false };
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  var deptsEl = document.getElementById('depts');
+  var statsEl = document.getElementById('stats');
+  var jumpEl = document.getElementById('jump');
+
+  function personMatches(p){
+    if(!filters.emeritus && p.emeritus) return false;
+    var rec = getRec(p.email);
+    if(filters.reached === 'pending' && rec.reached === 'yes') return false;
+    if(filters.reached === 'yes' && rec.reached !== 'yes') return false;
+    if(filters.hiring === 'yes' && rec.hiring !== 'yes') return false;
+    if(filters.hiring === 'no' && rec.hiring !== 'no') return false;
+    if(filters.q){
+      var hay = (p.name+' '+p.title+' '+p.research+' '+(rec.notes||'')).toLowerCase();
+      if(hay.indexOf(filters.q) === -1) return false;
+    }
+    return true;
+  }
+
+  function render(){
+    deptsEl.innerHTML = '';
+    jumpEl.innerHTML = '';
+
+    var totalAll = 0, reachedAll = 0, hiringYesAll = 0;
+
+    DEPTS.forEach(function(dept){
+      var people = DATA.filter(function(p){ return p.dept === dept.key; });
+      var visible = people.filter(personMatches);
+
+      people.forEach(function(p){
+        if(!filters.emeritus && p.emeritus) return;
+        totalAll++;
+        var rec = getRec(p.email);
+        if(rec.reached === 'yes') reachedAll++;
+        if(rec.hiring === 'yes') hiringYesAll++;
+      });
+
+      var section = document.createElement('section');
+      section.className = 'dept';
+      section.id = 'dept-' + dept.key;
+
+      var head = document.createElement('div');
+      head.className = 'dept-head';
+      head.innerHTML =
+        '<h2>' + escapeHtml(dept.name) + ' <span class="count">' + visible.length + ' of ' + people.filter(function(p){return filters.emeritus||!p.emeritus;}).length + ' shown</span></h2>' +
+        '<p class="blurb">' + escapeHtml(dept.blurb) + '</p>' +
+        '<div class="areas">' + dept.areas.map(function(a){ return '<span>'+escapeHtml(a)+'</span>'; }).join('') + '</div>';
+      section.appendChild(head);
+
+      if(visible.length === 0){
+        var empty = document.createElement('p');
+        empty.className = 'empty-note';
+        empty.textContent = 'No one here matches the current filters.';
+        section.appendChild(empty);
+      } else {
+        var lastGroup = null;
+        var list = null;
+        visible.forEach(function(p){
+          if(p.group !== lastGroup){
+            var gl = document.createElement('div');
+            gl.className = 'group-label';
+            gl.textContent = p.group;
+            section.appendChild(gl);
+            list = document.createElement('ul');
+            list.className = 'roster';
+            section.appendChild(list);
+            lastGroup = p.group;
+          }
+          list.appendChild(renderPerson(p));
+        });
+      }
+
+      deptsEl.appendChild(section);
+
+      var jumpLink = document.createElement('a');
+      jumpLink.href = '#dept-' + dept.key;
+      jumpLink.innerHTML = dept.name.split('&')[0].trim().split(',')[0] + '<span class="c">' + people.filter(function(p){return filters.emeritus||!p.emeritus;}).length + '</span>';
+      jumpEl.appendChild(jumpLink);
+    });
+
+    statsEl.innerHTML =
+      stat(totalAll, 'Faculty listed') +
+      stat(reachedAll, 'Applications sent', true) +
+      stat(totalAll - reachedAll, 'Not contacted yet') +
+      stat(hiringYesAll, 'Marked hiring: yes', true);
+  }
+
+  function stat(n, label, accent){
+    return '<div class="stat"><div class="n' + (accent?' accent':'') + '">' + n + '</div><div class="l">' + label + '</div></div>';
+  }
+
+  function renderPerson(p){
+    var rec = getRec(p.email);
+    var li = document.createElement('li');
+    li.className = 'person' + (p.emeritus ? ' is-emeritus' : '');
+
+    var top = document.createElement('div');
+    top.className = 'p-top';
+
+    var idBlock = document.createElement('div');
+    idBlock.className = 'p-id';
+    idBlock.innerHTML =
+      '<div class="p-name">' + escapeHtml(p.name) + (p.emeritus ? '<span class="tag-em">emeritus</span>' : '') + '</div>' +
+      '<div class="p-title">' + escapeHtml(p.title) + '</div>' +
+      '<a class="p-email" href="mailto:' + encodeURIComponent(p.email) + '">' + escapeHtml(p.email) +
+        '<button class="copy-btn" type="button" title="Copy email" aria-label="Copy email">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+        '</button>' +
+      '</a>';
+    top.appendChild(idBlock);
+
+    var toggles = document.createElement('div');
+    toggles.className = 'toggles';
+    toggles.appendChild(buildToggle('Reached out', rec, 'reached', p.email));
+    toggles.appendChild(buildToggle('Is hiring', rec, 'hiring', p.email));
+    top.appendChild(toggles);
+
+    li.appendChild(top);
+
+    var notesWrap = document.createElement('div');
+    notesWrap.className = 'p-notes';
+    var ta = document.createElement('textarea');
+    ta.rows = 1;
+    ta.placeholder = 'Research focus / notes…';
+    ta.value = (rec.notes !== null && rec.notes !== undefined) ? rec.notes : p.research;
+    ta.addEventListener('input', function(){
+      rec.notes = ta.value;
+      localSave();
+      scheduleNotesWrite(p.email);
+    });
+    notesWrap.appendChild(ta);
+    li.appendChild(notesWrap);
+
+    var copyBtn = idBlock.querySelector('.copy-btn');
+    copyBtn.addEventListener('click', function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      var done = function(){
+        copyBtn.classList.add('copied');
+        setTimeout(function(){ copyBtn.classList.remove('copied'); }, 1200);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(p.email).then(done, done);
+      } else {
+        done();
+      }
+    });
+
+    return li;
+  }
+
+  function buildToggle(label, rec, field, email){
+    var wrap = document.createElement('div');
+    wrap.className = 'toggle-group';
+    var lab = document.createElement('div');
+    lab.className = 'tg-label';
+    lab.textContent = label;
+    wrap.appendChild(lab);
+
+    var pair = document.createElement('div');
+    pair.className = 'pill-pair';
+
+    var yes = document.createElement('button');
+    yes.type = 'button'; yes.className = 'yes'; yes.textContent = 'Yes';
+    var no = document.createElement('button');
+    no.type = 'button'; no.className = 'no'; no.textContent = 'No';
+
+    function refresh(){
+      yes.classList.toggle('active', rec[field] === 'yes');
+      no.classList.toggle('active', rec[field] === 'no');
+    }
+    refresh();
+
+    yes.addEventListener('click', function(){
+      rec[field] = (rec[field] === 'yes') ? null : 'yes';
+      refresh(); localSave(); writeRemote(email); renderStatsOnly();
+    });
+    no.addEventListener('click', function(){
+      rec[field] = (rec[field] === 'no') ? null : 'no';
+      refresh(); localSave(); writeRemote(email); renderStatsOnly();
+    });
+
+    pair.appendChild(yes); pair.appendChild(no);
+    wrap.appendChild(pair);
+    return wrap;
+  }
+
+  function renderStatsOnly(){
+    var totalAll = 0, reachedAll = 0, hiringYesAll = 0;
+    DATA.forEach(function(p){
+      if(!filters.emeritus && p.emeritus) return;
+      totalAll++;
+      var rec = getRec(p.email);
+      if(rec.reached === 'yes') reachedAll++;
+      if(rec.hiring === 'yes') hiringYesAll++;
+    });
+    statsEl.innerHTML =
+      stat(totalAll, 'Faculty listed') +
+      stat(reachedAll, 'Applications sent', true) +
+      stat(totalAll - reachedAll, 'Not contacted yet') +
+      stat(hiringYesAll, 'Marked hiring: yes', true);
+  }
+
+  document.getElementById('search').addEventListener('input', function(e){
+    filters.q = e.target.value.trim().toLowerCase();
+    render();
+  });
+  document.getElementById('show-emeritus').addEventListener('change', function(e){
+    filters.emeritus = e.target.checked;
+    render();
+  });
+  function wireSeg(id, key){
+    var seg = document.getElementById(id);
+    seg.addEventListener('click', function(e){
+      var btn = e.target.closest('button');
+      if(!btn) return;
+      Array.prototype.forEach.call(seg.querySelectorAll('button'), function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      filters[key] = btn.getAttribute('data-v');
+      render();
+    });
+  }
+  wireSeg('filter-reached', 'reached');
+  wireSeg('filter-hiring', 'hiring');
+
+  setSyncStatus('local');
+  render();
+  initDb();
+})();
+</script>
+</body>
+</html>
